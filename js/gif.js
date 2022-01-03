@@ -9,8 +9,13 @@
             let index = 0;
             let image = item.querySelectorAll('img');
 
+            image.forEach((img) => {
+                img.classList.add('-hide');
+            });
+            image.item(index).classList.remove('-hide');
+
             document.addEventListener('scroll', () => {
-                image.item(index).style.display = 'none';
+                image.item(index).classList.add('-hide');
 
                 index++; // 番号を+1する
 
@@ -18,7 +23,7 @@
                     index = 0;
                 }
 
-                image.item(index).style.display = 'block';
+                image.item(index).classList.remove('-hide');
             });
         });
     };
