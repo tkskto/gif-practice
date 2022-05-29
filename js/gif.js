@@ -1,38 +1,62 @@
+import {SpriteSheetCanvas} from './spriteSheetCanvas.js';
+import {model} from './model.js';
+
 (function () {
     'use strict'; // おまじない
+
+    const loading = document.querySelector('.loading');
 
     const setScrollGif = () => {
         // classが"item"の要素をitemListという名前の箱に入れておく
         const itemList = document.querySelectorAll('.item');
+        let loadedItem = 0;
+        let currentSpriteIndex = 0;
+        let sleep = 0;
+        const loadComplete = () => {
+            sprites[0].show();
+        };
+        /** @type SpriteSheetCanvas[] */
+        const sprites = [];
+        const onReadySprite = (e) => {
+            loadedItem++;
+            sprites[e.detail.index] = e.target;
 
-        itemList.forEach((item) => {
-            let index = 0;
-            // itemListが持っているimgタグを取得
-            let image = item.querySelectorAll('img');
+            if (loadedItem === itemList.length) {
+                loading.classList.add('-hide');
+                loadComplete();
+            }
+        };
+        const nextSpriteSheet = () => {
+            currentSpriteIndex++;
 
-            // imageから1個ずつ取り出して処理する
-            image.forEach((img) => {
-                // 取り出したimgタグにクラスをつける
-                img.classList.add('-hide');
-            });
-            // 1個目だけ表示
-            image.item(0).classList.remove('-hide');
+            if (currentSpriteIndex >= sprites.length) {
+                currentSpriteIndex = 0;
+            }
 
-            document.addEventListener('scroll',
-                () => {
-                    image.item(index).classList.add('-hide');
+            sprites[currentSpriteIndex].show();
+        };
 
-                    index = index + 1; // 番号を+1する
+        itemList.forEach((elm, index) => {
+            const {name, count} = elm.dataset;
+            const spriteSheet = new SpriteSheetCanvas(elm.querySelector('.js-canvas'), name, count, index);
 
-                    // 最後の画像を表示したら0番目に戻る
-                    if (index > image.length - 1) {
-                        index = 0;
-                    }
+            spriteSheet.addEventListener('ready', onReadySprite);
+            spriteSheet.addEventListener('finish', nextSpriteSheet);
+        });
 
-                    image.item(index).classList.remove('-hide');
-                }
-            );
+        document.addEventListener('wheel', (e) => {
+            e.preventDefault();
+
+            if (sleep < 0) {
+                sleep = 2;
+                model.dispatchScrollEvent(e.deltaY);
+            }
+
+            sleep--;
+        }, {
+            passive: false,
         });
     };
+
     setScrollGif();
 }());

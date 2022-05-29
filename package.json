@@ -1,0 +1,31 @@
+{
+  "name": "gif-practice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack --mode development -w",
+    "build": "webpack --mode production",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tkskto/gif-practice.git"
+  },
+  "keywords": [],
+  "author": "Takeshi Kato <tkskto@gmail.com> (https://github.com/tkskto)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tkskto/gif-practice/issues"
+  },
+  "homepage": "https://github.com/tkskto/gif-practice#readme",
+  "devDependencies": {
+    "lil-gui": "^0.16.1",
+    "glslify": "^7.1.1",
+    "glslify-loader": "^2.0.0",
+    "raw-loader": "^4.0.2",
+    "three": "^0.138.3",
+    "url-loader": "^4.1.1",
+    "webpack-cli": "^4.9.2"
+  }
+}
