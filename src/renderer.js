@@ -51,7 +51,7 @@ export class Renderer {
     }
 
     #update() {
-        const elapsedTime = (new Date().getTime() - this.#startTime) * 0.01;
+        const elapsedTime = (new Date().getTime() - this.#startTime) * 0.001;
         this.#render();
         this.#layerArray.forEach((layer) => {
             layer.update(elapsedTime);

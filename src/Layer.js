@@ -1,7 +1,7 @@
-import {PlaneGeometry, ShaderMaterial, Mesh, Vector2, GLSL3} from 'three';
+import {PlaneGeometry, ShaderMaterial, Mesh, Vector2, GLSL3, TextureLoader, RepeatWrapping} from 'three';
 import {model} from './Model.js';
 import vertex from './shader/plane.vert';
-import fragment from './shader/plane.frag';
+import fragment from './shader/plane2.frag';
 
 export class Layer extends EventTarget {
     #mesh;
@@ -11,6 +11,11 @@ export class Layer extends EventTarget {
     constructor() {
         super();
 
+        const texture = new TextureLoader().load('/img/texture.png');
+        texture.wrapS = RepeatWrapping;
+        texture.wrapT = RepeatWrapping;
+        texture.repeat.set( 4, 4 );
+
         const geometry = new PlaneGeometry(model.windowWidth, model.windowHeight, 1, 1);
         const material = new ShaderMaterial({
             uniforms: {
@@ -19,7 +24,10 @@ export class Layer extends EventTarget {
                 },
                 iResolution: {
                     value: new Vector2(model.windowWidth, model.windowHeight),
-                }
+                },
+                iTexture: {
+                    value: texture,
+                },
             },
             transparent: true,
             vertexShader: vertex,

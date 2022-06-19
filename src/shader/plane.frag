@@ -4,8 +4,8 @@ in vec2 vUv;
 out vec4 outColor;
 
 float hash(vec2 p) {
-    return 0.5 * (
-        sin(dot(p, vec2(271.319, 413.975)) + 1217.13 * p.x * p.y)
+    return 0.5*(
+    sin(dot(p, vec2(271.319, 413.975)) + 1217.13*p.x*p.y)
     ) + 0.5;
 }
 
@@ -14,11 +14,13 @@ float noise(vec2 p) {
     w = w * w * (3.0 - 2.0*w);
     p = floor(p);
     return mix(
-        mix(hash(p+vec2(0,0)), hash(p+vec2(1,0)), w.x),
-        mix(hash(p+vec2(0,1)), hash(p+vec2(1,1)), w.x),
-    w.y);
+    mix(hash(p+vec2(0,0)), hash(p+vec2(1,0)), w.x),
+    mix(hash(p+vec2(0,1)), hash(p+vec2(1,1)), w.x), w.y);
 }
 
+// wave octave inspiration
+// Alexander Alekseev - Seascape
+// https://www.shadertoy.com/view/Ms2SD1
 float map_octave(vec2 uv) {
     uv = (uv + noise(uv)) / 2.5;
     uv = vec2(uv.x*0.6-uv.y*0.8, uv.x*0.8+uv.y*0.6);
@@ -104,24 +106,6 @@ float lightShafts(vec2 st) {
     return pow(val*mask, 2.0);
 }
 
-vec2 bubble(vec2 uv, float scale) {
-    if(uv.y > 0.2) return vec2(0.);
-    float t = iTime/4.;
-    vec2 st = uv * scale;
-    vec2 _st = floor(st);
-    vec2 bias = vec2(0., 4. * sin(_st.x*128. + t));
-    float mask = smoothstep(0.1, 0.2, -cos(_st.x*128. + t));
-    st += bias;
-    vec2 _st_ = floor(st);
-    st = fract(st);
-    float size = noise(_st_)*0.07+0.01;
-    vec2 pos = vec2(noise(vec2(t, _st_.y*64.1)) * 0.8 + 0.1, 0.5);
-    if(length(st.xy - pos) < size) {
-        return (st + pos) * vec2(.1, .2) * mask;
-    }
-    return vec2(0.);
-}
-
 void main(){
     vec3 ro = vec3(0.,0.,2.);
     vec3 lightPos = vec3(8, 3, -3);
@@ -129,15 +113,16 @@ void main(){
 
     // adjust uv
     vec2 uv = gl_FragCoord.xy;
-    uv = (-iResolution.xy + 2.0*uv) / iResolution.y;
-    uv.y *= 0.5;
+    vec2 p = (-iResolution.xy + 2.0*uv) / iResolution.y;
+    uv = p;
+    uv.y *= 0.3;
     uv.x *= 0.45;
-//    uv += bubble(uv, 12.) + bubble(uv, 24.); // add bubbles
 
     vec3 rd = normalize(vec3(uv, -1.));
     vec3 hitPos;
     float hitT;
-    vec3 seaColor = vec3(11,82,142)/255.;
+    vec3 blue = vec3(11,82,142)/255.;
+    vec3 seaColor = blue + clamp(p.y * 0.5, -0.45, 0.0);
     vec3 color;
 
     // waves
@@ -154,14 +139,14 @@ void main(){
     col = mix(color, seaColor, pow(clamp(0., 1., dist), 0.2)); // glow edge
     col += vec3(225,230,200)/255. * lightShafts(uv); // light shafts
 
-    // tone ma
+    // tone map
     col = (col*col + sin(col))/vec3(1.8, 1.8, 1.9);
 
     // vignette
     // inigo quilez - Stop Motion Fox
     // https://www.shadertoy.com/view/3dXGWB
-//    vec2 q = vUv / iResolution.xy;
-//    col *= 0.7+0.3*pow(16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y),0.2);
+    vec2 q = vUv / iResolution.xy;
+    col *= 0.7+0.3*pow(16.0*q.x*q.y*(1.0-q.x)*(1.0-q.y),0.2);
 
     outColor = vec4(col, 1.0);
 }
