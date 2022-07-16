@@ -1,11 +1,10 @@
 uniform float iTime;
 uniform vec2 iResolution;
-uniform sampler2D iTexutre;
 in vec2 vUv;
 out vec4 outColor;
 
 #define PI2 6.28318530718
-#define MAX_ITER 5
+#define MAX_ITER 4
 
 vec3 caustic(vec2 uv)
 {
@@ -34,13 +33,11 @@ vec3 caustic(vec2 uv)
 
 void main()
 {
-    vec2 uv = gl_FragCoord.xy;
-    vec2 st = gl_FragCoord.xy / iResolution;
     vec3 skyColor = vec3(0.3, 1.0, 1.0);
     vec3 horizonColor = vec3(0.0, 0.05, 0.2);
     vec2 p = (-iResolution.xy + 2.0 * gl_FragCoord.xy) / iResolution.y;
     vec3 eye = vec3(0.0, 1.25, 1.5);
-    vec2 rot = vec2(0.0);
+    vec2 rot = vec2(0.0, 0.65);
 
     eye.yz = cos(rot.y) * eye.yz + sin(rot.y) * eye.zy * vec2(-1.0, 1.0);
     eye.xz = cos(rot.x) * eye.xz + sin(rot.x) * eye.zx * vec2(1.0, -1.0);
@@ -57,14 +54,16 @@ void main()
     vec3 color = skyColor;
 
     // 水面
-    color += ((0.3*caustic(vec2(p.x,p.y)))+(0.3*caustic(vec2(p.x,p.y*2.7))))*pow(p.y,4.0);
+    color += (
+        (0.3*caustic(vec2(p.x,p.y))) +
+        (0.3*caustic(vec2(p.x,p.y*2.7)))
+    ) * pow(p.y,4.0);
 
     // horizon
-
-    color = mix(color, horizonColor, pow(1.0 - pow(rd.y,4.0), 20.0));
+    color = mix(color, horizonColor, pow(1.0 - pow(rd.y,7.0), 12.0));
     color += mix(vec3(0.0), skyColor, rd.y * 0.1);
 
     // gamma correction
-    vec3 gamma = vec3(0.4545);
+    vec3 gamma = vec3(0.454564);
     outColor = vec4(pow(color, gamma), 1.0);
 }
